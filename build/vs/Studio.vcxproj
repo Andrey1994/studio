@@ -816,7 +816,7 @@ Studio.cmd
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
     <Link>
-      <AdditionalLibraryDirectories>lib\x64;..\..\deps\prebuilt\win\x64;..\..\deps\build\vs\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>lib\x64;..\..\deps\prebuilt\win\x64;..\..\deps\build\vs\lib\x64;..\..\deps\prebuilt\win\x64\Release</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <SubSystem>Console</SubSystem>
       <MinimumRequiredVersion>6.02</MinimumRequiredVersion>
