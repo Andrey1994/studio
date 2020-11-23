@@ -159,26 +159,26 @@ void BrainFlowDeviceSynthetic::Init() {
 	Sleep(5000);
 	mBoardShim->stop_stream();*/
 };
-
-void BrainFlowDevice::CreateSensors()
-{
-	// create electrodes with default positions
-	CreateElectrodes();
-
-	// create a sensor for each electrode
-	const uint32 numSensors = mElectrodes.Size();
-	for (uint32 i = 0; i < numSensors; ++i)
-	{
-		// create sensor with the neuro headset sample rate
-		Sensor* sensor = new Sensor(mElectrodes[i].GetName(), BoardShim::get_sampling_rate(mBoardId));
-
-		// set unique color for each sensor
-		sensor->GetChannel()->GetColor().SetUniqueColor(i);
-		sensor->SetEnabled(true);
-		// add sensors to our lists
-		AddSensor(sensor);
-	}
-}
+//
+//void BrainFlowDevice::CreateSensors()
+//{
+//	// create electrodes with default positions
+//	CreateElectrodes();
+//
+//	// create a sensor for each electrode
+//	const uint32 numSensors = mElectrodes.Size();
+//	for (uint32 i = 0; i < numSensors; ++i)
+//	{
+//		// create sensor with the neuro headset sample rate
+//		Sensor* sensor = new Sensor(mElectrodes[i].GetName(), BoardShim::get_sampling_rate(mBoardId));
+//
+//		// set unique color for each sensor
+//		sensor->GetChannel()->GetColor().SetUniqueColor(i);
+//		sensor->SetEnabled(true);
+//		// add sensors to our lists
+//		AddSensor(sensor);
+//	}
+//}
 
 // get the available electrodes of the neuro headset
 void BrainFlowDevice::CreateElectrodes()

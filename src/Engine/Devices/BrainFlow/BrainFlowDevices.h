@@ -112,7 +112,7 @@ public:
 	const char* GetUuid() const override { return "5108993a-fe1b-11e4-a322-1697f925e000"; }
 	static const char* GetRuleName() { return "BrainFlowDevice_rule"; }
 	Device* Clone() override { return new BrainFlowDevice(mBoardId, mParams); }
-	void CreateSensors();
+	//void CreateSensors();
 	void CreateElectrodes();
 	void Update(const Core::Time& elapsed, const Core::Time& delta) override;
 
@@ -122,14 +122,14 @@ public:
 	double GetTimeoutLimit() const override { return 60; } // Long timeout limit because channel config takes so long
 
 	// information
-	double GetSampleRate() const override { return 128; };
+	double GetSampleRate() const override { return BoardShim::get_sampling_rate(mBoardId); };
 
 private:
 	int mBoardId;
 	BrainFlowInputParams mParams;
 	BoardShim mBoard;
 
-	Core::Array<EEGElectrodes::Electrode>	mElectrodes;		// electrode positions for the neuro sensors
+	//Core::Array<EEGElectrodes::Electrode>	mElectrodes;		// electrode positions for the neuro sensors
 
 };
 
