@@ -85,13 +85,13 @@ public:
 	double GetTimeoutLimit() const override							{ return 60; } // Long timeout limit because channel config takes so long
 };
 
-class BrainFlowDevice : public Device
+class BrainFlowDevice : public BciDevice
 {
 public:
-	enum { TYPE_ID = DeviceTypeIDs::DEVICE_TYPEID_BRAINFLOW_BASE};
+	enum { TYPE_ID = DeviceTypeIDs::DEVICE_TYPEID_BRAINFLOW_CYTON };
 
 	BrainFlowDevice(int boardId, BrainFlowInputParams params, DeviceDriver* deviceDriver = nullptr)
-		: Device(deviceDriver), mBoardId(boardId), mParams(params), mBoard(mBoardId, mParams) {
+		: BciDevice(deviceDriver), mBoardId(boardId), mParams(params), mBoard(mBoardId, mParams) {
 		CreateSensors();
 	};
 
@@ -115,6 +115,14 @@ public:
 	void CreateSensors();
 	void CreateElectrodes();
 	void Update(const Core::Time& elapsed, const Core::Time& delta) override;
+
+	double GetLatency() const override { return 0.1; }
+	double GetExpectedJitter() const override { return 0.1; }
+	bool IsWireless() const override { return true; }
+	double GetTimeoutLimit() const override { return 60; } // Long timeout limit because channel config takes so long
+
+	// information
+	double GetSampleRate() const override { return 128; };
 
 private:
 	int mBoardId;

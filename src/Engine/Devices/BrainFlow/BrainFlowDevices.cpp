@@ -114,17 +114,19 @@ void BrainFlowDeviceBase::Update(const Core::Time& elapsed, const Core::Time& de
 	if (!mBoardShim)
 		return;
 	int data_count;
-	double** channels_data;
-	channels_data = mBoardShim->get_board_data(&data_count);
+	double** board_data;
+	board_data = mBoardShim->get_board_data(&data_count);
 	int channels_count;
+	int* channels_numbers = BoardShim::get_eeg_channels(mBoardId, &channels_count);
 	std::string* channels_names = BoardShim::get_eeg_names(mBoardId, &channels_count);
 	std::map<std::string, double*> data_by_channel;
 
 	for (int i = 0; i < channels_count; ++i)
 	{
-		const std::string name = channels_names[i];
-		double* data = channels_data[i];
-		data_by_channel[name] = data;
+		int channel_number = channels_numbers[i];
+		double* channel_data = board_data[channel_number];
+		const std::string channel_name = channels_names[i];
+		data_by_channel[channel_name] = channel_data;
 	}
 
 	for (uint32 i = 0; i < mSensors.Size(); ++i)
@@ -172,7 +174,7 @@ void BrainFlowDevice::CreateSensors()
 
 		// set unique color for each sensor
 		sensor->GetChannel()->GetColor().SetUniqueColor(i);
-
+		sensor->SetEnabled(true);
 		// add sensors to our lists
 		AddSensor(sensor);
 	}
@@ -204,17 +206,18 @@ void BrainFlowDevice::CreateElectrodes()
 void BrainFlowDevice::Update(const Core::Time& elapsed, const Core::Time& delta)
 {
 	int data_count;
-	double** channels_data;
-	channels_data = mBoard.get_board_data(&data_count);
+	double** board_data;
+	board_data = mBoard.get_board_data(&data_count);
 	int channels_count;
+	int* channels_numbers = BoardShim::get_eeg_channels(mBoardId, &channels_count);
 	std::string* channels_names = BoardShim::get_eeg_names(mBoardId, &channels_count);
 	std::map<std::string, double*> data_by_channel;
 
 	for (int i = 0; i < channels_count; ++i)
 	{
 		const std::string name = channels_names[i];
-		double* data = channels_data[i];
-		data_by_channel[name] = data;
+		int channels_number = channels_numbers[i];
+		data_by_channel[name] = board_data[channels_number];
 	}
 
 	for (uint32 i = 0; i < mSensors.Size(); ++i)
