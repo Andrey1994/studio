@@ -205,6 +205,9 @@ void BrainFlowDevice::CreateElectrodes()
 
 void BrainFlowDevice::Update(const Core::Time& elapsed, const Core::Time& delta)
 {
+	if (!mBoard.is_prepared())
+		return;
+
 	int data_count;
 	double** board_data;
 	board_data = mBoard.get_board_data(&data_count);

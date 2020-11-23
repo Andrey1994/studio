@@ -49,6 +49,7 @@ public:
 		if (auto* device = GetDeviceManager()->FindDeviceByType(BrainFlowDevice::TYPE_ID, 0)) 
 		{
 			deviceDisconnect(*dynamic_cast<BrainFlowDevice*>(device));
+			GetDeviceManager()->RemoveDeviceAsync(device);
 		}
 		else 
 		{
