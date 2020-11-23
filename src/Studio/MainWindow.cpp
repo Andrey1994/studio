@@ -530,9 +530,9 @@ void MainWindow::OnPostAuthenticationInit()
 	if (GetUser()->ReadAllowed(TestDevice::GetRuleName()))
 		GetDeviceManager()->AddDeviceDriver(new TestDeviceDriver());
 	#endif
-	#ifdef INCLUDE_DEVICE_BRAINFLOW
+	/*#ifdef INCLUDE_DEVICE_BRAINFLOW
 	GetDeviceManager()->AddDeviceDriver(new BrainFlowDriverCyton());
-	#endif
+	#endif*/
 
 	// load device configs (requires all devices to be present)
 	GetManager()->SetSplashScreenMessage("Loading device definitions...");

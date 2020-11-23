@@ -262,14 +262,14 @@ void DeviceInventory::RegisterDevices(bool disablePermissionCheck)
 		GetGraphObjectFactory()->RegisterObjectType(new ActiChampNode(NULL));
 	}
 #endif
-
-#ifdef INCLUDE_DEVICE_BRAINFLOW
-	//if (disablePermissionCheck || user->ReadAllowed(BrainFlowDeviceCyton::GetRuleName()))
-	{
-		GetDeviceManager()->RegisterDeviceType(new BrainFlowDeviceCyton());
-		GetGraphObjectFactory()->RegisterObjectType(new BrainFlowCytonNode(NULL));
-	}
-#endif
+//
+//#ifdef INCLUDE_DEVICE_BRAINFLOW
+//	//if (disablePermissionCheck || user->ReadAllowed(BrainFlowDeviceCyton::GetRuleName()))
+//	{
+//		GetDeviceManager()->RegisterDeviceType(new BrainFlowDeviceSynthetic());
+//		GetGraphObjectFactory()->RegisterObjectType(new BrainFlowCytonNode(NULL));
+//	}
+//#endif
 
 
 

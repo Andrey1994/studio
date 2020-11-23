@@ -37,6 +37,37 @@
 
 #ifdef INCLUDE_DEVICE_BRAINFLOW
 
+class BrainFlowDriver : public QObject, public DeviceDriver, public Core::EventHandler
+{
+public:
+	BrainFlowDriver() : DeviceDriver(false) {}
+	virtual ~BrainFlowDriver() = default;
+
+	BrainFlowDevice* deviceConnect(int boardId, const BrainFlowInputParams& params);
+	void deviceDisconnect(BrainFlowDevice& device);
+	void DetectDevices() override {
+		if (auto* device = GetDeviceManager()->FindDeviceByType(BrainFlowDevice::TYPE_ID, 0)) 
+		{
+			deviceDisconnect(*dynamic_cast<BrainFlowDevice*>(device));
+		}
+		else 
+		{
+			device = deviceConnect(-1, BrainFlowInputParams());
+			GetDeviceManager()->AddDeviceAsync(device);
+		}
+	}
+
+
+	const char* GetName() const override { return "BrainFlow Devices"; }
+	uint32 GetType() const override { return DeviceTypeIDs::DEVICE_TYPEID_BRAINFLOW_BASE; }
+	bool HasAutoDetectionSupport() const override { return false; }
+	Device* CreateDevice(uint32 deviceTypeID) override { return deviceConnect(deviceTypeID, BrainFlowInputParams()); };
+	bool Init() override { return true; };
+	void Update(const Core::Time& delta, const Core::Time& elapsed) override {};
+
+private:
+	Core::Array<BrainFlowDevice*> mDevices;
+};
 
 class BrainFlowDriverBase : public QObject, public DeviceDriver, public Core::EventHandler
 {

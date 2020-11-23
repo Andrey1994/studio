@@ -26,6 +26,8 @@
 #include "../../EngineManager.h"
 #include "../../Core/LogManager.h"
 
+#include <map>
+
 #ifdef INCLUDE_DEVICE_BRAINFLOW
 
 using namespace Core;
@@ -35,6 +37,7 @@ BrainFlowDeviceBase::BrainFlowDeviceBase(int boardId, DeviceDriver* driver)
 {
 	mState = STATE_IDLE;
 	CreateSensors();
+	CreateBoardShim(BrainFlowInputParams());
 }
 
 void BrainFlowDeviceBase::CreateBoardShim(BrainFlowInputParams params)
@@ -104,22 +107,132 @@ void BrainFlowDeviceBase::CreateElectrodes()
 	}
 }
 
-BrainFlowDeviceCyton::BrainFlowDeviceCyton(DeviceDriver* driver)
-	: BrainFlowDeviceBase((int)BoardIds::CYTON_BOARD, driver) {}
 
-void BrainFlowDeviceCyton::Update(const Core::Time& elapsed, const Core::Time& delta)
+void BrainFlowDeviceBase::Update(const Core::Time& elapsed, const Core::Time& delta)
 {
-	const double a = 100; // amplitude +-300uv
+	return;
+	if (!mBoardShim)
+		return;
+	int data_count;
+	double** channels_data;
+	channels_data = mBoardShim->get_board_data(&data_count);
+	int channels_count;
+	std::string* channels_names = BoardShim::get_eeg_names(mBoardId, &channels_count);
+	std::map<std::string, double*> data_by_channel;
+
+	for (int i = 0; i < channels_count; ++i)
+	{
+		const std::string name = channels_names[i];
+		double* data = channels_data[i];
+		data_by_channel[name] = data;
+	}
+
 	for (uint32 i = 0; i < mSensors.Size(); ++i)
 	{
 		auto* sensor = mSensors[i];
-		auto offsetSampleTime = elapsed.InSeconds();
-		auto value = 100 * sin(2.0 * Math::pi * 1 * offsetSampleTime);
-		// ac noise
-		value += 0.3 * a * ((double)rand() / RAND_MAX - 0.5) * 2.0;
-		sensor->AddQueuedSample(value);
+		auto iter = data_by_channel.find(sensor->GetName());
+		if (iter == data_by_channel.end())
+			continue;
+		double* channel_data = iter->second;
+		for (int j = 0; j < data_count; ++j)
+		{
+			double value = channel_data[j];
+			sensor->AddQueuedSample(value);
+		}
 	}
 	// update the neuro headset
 	BciDevice::Update(elapsed, delta);
 }
+
+BrainFlowDeviceCyton::BrainFlowDeviceCyton(DeviceDriver* driver)
+	: BrainFlowDeviceBase((int)BoardIds::SYNTHETIC_BOARD, driver) {}
+
+BrainFlowDeviceSynthetic::BrainFlowDeviceSynthetic(DeviceDriver* driver) :
+	BrainFlowDeviceBase(static_cast<int>(BoardIds::SYNTHETIC_BOARD), driver) {
+	Init();
+}
+
+void BrainFlowDeviceSynthetic::Init() {
+	/*mBoardShim->start_stream();
+	Sleep(5000);
+	mBoardShim->stop_stream();*/
+};
+
+void BrainFlowDevice::CreateSensors()
+{
+	// create electrodes with default positions
+	CreateElectrodes();
+
+	// create a sensor for each electrode
+	const uint32 numSensors = mElectrodes.Size();
+	for (uint32 i = 0; i < numSensors; ++i)
+	{
+		// create sensor with the neuro headset sample rate
+		Sensor* sensor = new Sensor(mElectrodes[i].GetName(), BoardShim::get_sampling_rate(mBoardId));
+
+		// set unique color for each sensor
+		sensor->GetChannel()->GetColor().SetUniqueColor(i);
+
+		// add sensors to our lists
+		AddSensor(sensor);
+	}
+}
+
+// get the available electrodes of the neuro headset
+void BrainFlowDevice::CreateElectrodes()
+{
+	mElectrodes.Clear();
+
+	try
+	{
+		int len = 0;
+		std::string* eegNames = BoardShim::get_eeg_names(mBoardId, &len);
+		mElectrodes.Reserve(len);
+		// todo check that BrainFlow IDs match studio IDs
+		for (int i = 0; i < len; i++)
+		{
+			mElectrodes.Add(GetEEGElectrodes()->GetElectrodeByID(eegNames[i].c_str()));
+		}
+	}
+	catch (const BrainFlowException& err)
+	{
+		LogError(err.what());
+	}
+}
+
+
+void BrainFlowDevice::Update(const Core::Time& elapsed, const Core::Time& delta)
+{
+	int data_count;
+	double** channels_data;
+	channels_data = mBoard.get_board_data(&data_count);
+	int channels_count;
+	std::string* channels_names = BoardShim::get_eeg_names(mBoardId, &channels_count);
+	std::map<std::string, double*> data_by_channel;
+
+	for (int i = 0; i < channels_count; ++i)
+	{
+		const std::string name = channels_names[i];
+		double* data = channels_data[i];
+		data_by_channel[name] = data;
+	}
+
+	for (uint32 i = 0; i < mSensors.Size(); ++i)
+	{
+		auto* sensor = mSensors[i];
+		auto iter = data_by_channel.find(sensor->GetName());
+		if (iter == data_by_channel.end())
+			continue;
+		double* channel_data = iter->second;
+		for (int j = 0; j < data_count; ++j)
+		{
+			double value = channel_data[j];
+			sensor->AddQueuedSample(value);
+		}
+	}
+	// update the neuro headset
+	Device::Update(elapsed, delta);
+}
+
+
 #endif

@@ -29,6 +29,8 @@
 #include <System/SerialPort.h>
 #include <QApplication>
 
+#include <memory>
+
 #ifdef INCLUDE_DEVICE_BRAINFLOW
 
 using namespace Core;
@@ -40,6 +42,26 @@ BrainFlowDriverBase::~BrainFlowDriverBase ()
 	LogInfo("Destructing BrainFlow device driver ...");
 	// remove event handler
 	CORE_EVENTMANAGER.RemoveEventHandler(this);
+}
+
+BrainFlowDevice* BrainFlowDriver::deviceConnect(int boardId, const BrainFlowInputParams& params)
+{
+	auto device = std::make_unique<BrainFlowDevice>(boardId, params, this);
+	device->Init();
+	mDevices.Add(device.release());
+	return mDevices.GetLast();
+}
+
+void BrainFlowDriver::deviceDisconnect(BrainFlowDevice& device)
+{
+	auto deviceIndex = mDevices.Find(&device);
+	if (deviceIndex == CORE_INVALIDINDEX32)
+	{
+		// FAIL
+		return;
+	}
+	device.Release();
+	mDevices.Remove(deviceIndex);
 }
 
 
@@ -117,34 +139,34 @@ bool BrainFlowDriverCyton::Init()
 
 void BrainFlowDriverCyton::Update(const Core::Time& delta, const Core::Time& elapsed)
 {
-	if (IsEnabled() == false)
-		return;
+	//if (IsEnabled() == false)
+	//	return;
 
-	mTimeSinceDeviceCheck += delta.InSeconds();
-	if (mTimeSinceDeviceCheck > 1.0)
-	{
-		// add one test headset in case no other device is connected
-		const uint32 numTestHeadsets = GetDeviceManager()->FindNumDevicesByType(BrainFlowDeviceCyton::TYPE_ID);
-		if (numTestHeadsets == 0)
-		{
-			if (GetDeviceManager()->GetNumDevices() == 0)
-			{
-				Device* testHeadset = new BrainFlowDeviceCyton(this);
-				GetDeviceManager()->AddDeviceAsync(testHeadset);
-			}
-		}
-		else
-		{
-			// remove the test headset as soon as a real device gets connected
-			if (GetDeviceManager()->GetNumDevices() > numTestHeadsets)
-			{
-				Device* testHeadset = GetDeviceManager()->FindDeviceByType(BrainFlowDeviceCyton::TYPE_ID, 0);
-				GetDeviceManager()->RemoveDeviceAsync(testHeadset);
-			}
-		}
+	//mTimeSinceDeviceCheck += delta.InSeconds();
+	//if (mTimeSinceDeviceCheck > 1.0)
+	//{
+	//	// add one test headset in case no other device is connected
+	//	const uint32 numTestHeadsets = GetDeviceManager()->FindNumDevicesByType(BrainFlowDeviceCyton::TYPE_ID);
+	//	if (numTestHeadsets == 0)
+	//	{
+	//		if (GetDeviceManager()->GetNumDevices() == 0)
+	//		{
+	//			Device* testHeadset = new BrainFlowDeviceCyton(this);
+	//			GetDeviceManager()->AddDeviceAsync(testHeadset);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// remove the test headset as soon as a real device gets connected
+	//		if (GetDeviceManager()->GetNumDevices() > numTestHeadsets)
+	//		{
+	//			Device* testHeadset = GetDeviceManager()->FindDeviceByType(BrainFlowDeviceCyton::TYPE_ID, 0);
+	//			GetDeviceManager()->RemoveDeviceAsync(testHeadset);
+	//		}
+	//	}
 
-		mTimeSinceDeviceCheck = 0.0;
-	}
+	//	mTimeSinceDeviceCheck = 0.0;
+	//}
 }
 
 BrainFlowInputParams BrainFlowDriverCyton::GetParams()
