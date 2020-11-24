@@ -38,43 +38,32 @@ class BrainFlowDevice : public BciDevice
 public:
 	enum { TYPE_ID = DeviceTypeIDs::DEVICE_TYPEID_BRAINFLOW };
 
-	BrainFlowDevice(int boardId, BrainFlowInputParams params, DeviceDriver* deviceDriver = nullptr)
-		: BciDevice(deviceDriver), mBoardId(boardId), mParams(params), mBoard(mBoardId, mParams) {
-		CreateSensors();
-	};
+	BrainFlowDevice(DeviceDriver* deviceDriver = nullptr);
+	BrainFlowDevice(BoardIds boardId, BrainFlowInputParams params, DeviceDriver* deviceDriver = nullptr);
 
-	void Init() {
-		mBoard.prepare_session();
-		mBoard.start_stream();
-	}
-
-	void Release()
-	{
-		mBoard.stop_stream();
-		mBoard.release_session();
-	}
-
+	bool Connect() override;
+	bool Disconnect() override;
+	
 	uint32 GetType() const override { return TYPE_ID; }
 	const char* GetTypeName() const override { return "BrainFlowDevice_type"; }
 	const char* GetHardwareName() const override { return "BrainFlowDevice_hardware"; }
 	const char* GetUuid() const override { return "5108993a-fe1b-11e4-a322-1697f925e000"; }
 	static const char* GetRuleName() { return "BrainFlowDevice_rule"; }
-	Device* Clone() override { return new BrainFlowDevice(mBoardId, mParams); }
-	void CreateElectrodes();
 	void Update(const Core::Time& elapsed, const Core::Time& delta) override;
 
-	double GetLatency() const override { return 0.1; }
-	double GetExpectedJitter() const override { return 0.1; }
-	bool IsWireless() const override { return true; }
-	double GetTimeoutLimit() const override { return 60; } // Long timeout limit because channel config takes so long
+private:
+	int getBoardId() const;
+	void CreateElectrodes();
+	Device* Clone() override { return new BrainFlowDevice(); }
 
 	// information
-	double GetSampleRate() const override { return BoardShim::get_sampling_rate(mBoardId); };
+	double GetSampleRate() const override;
+
 
 private:
-	int mBoardId;
-	BrainFlowInputParams mParams;
-	BoardShim mBoard;
+	const BoardIds mBoardId;
+	const BrainFlowInputParams mParams;
+	std::unique_ptr<BoardShim> mBoard = nullptr;
 };
 
 

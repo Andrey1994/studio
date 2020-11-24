@@ -95,6 +95,7 @@ class ENGINE_API DeviceTypeIDs
 			DRIVER_TYPEID_BRAINQUIRY				= 0x0800,	// 08XX = Brainquiry
 			DRIVER_TYPEID_BRAINPRODUCTS				= 0x0900,   // 09xx = BrainProducts
 			DRIVER_TYPEID_EEMAGINE					= 0x0A00,	// 0AXX = eemagine
+			DRIVER_TYPEID_BRAINFLOW					= 0x1000,	// 1000 = BrainFlow Driver
 			DRIVER_TYPEID_AUDIO						= 0xC000,	// C000 = Audio Driver
 			DRIVER_TYPEID_CAMERA					= 0xD000,	// D000 = Camera Driver
 			DRIVER_TYPEID_BLUETOOTH					= 0xE000,	// E000 = Bluetooth Driver

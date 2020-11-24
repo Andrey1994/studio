@@ -40,34 +40,23 @@
 class BrainFlowDriver : public QObject, public DeviceDriver, public Core::EventHandler
 {
 public:
-	BrainFlowDriver() : DeviceDriver(false) {}
+	BrainFlowDriver();
 	virtual ~BrainFlowDriver() = default;
 
-	BrainFlowDevice* deviceConnect(int boardId, const BrainFlowInputParams& params);
-	void deviceDisconnect(BrainFlowDevice& device);
-	void DetectDevices() override {
-		if (auto* device = GetDeviceManager()->FindDeviceByType(BrainFlowDevice::TYPE_ID, 0)) 
-		{
-			deviceDisconnect(*dynamic_cast<BrainFlowDevice*>(device));
-			GetDeviceManager()->RemoveDeviceAsync(device);
-		}
-		else 
-		{
-			device = deviceConnect(-1, BrainFlowInputParams());
-			GetDeviceManager()->AddDeviceAsync(device);
-		}
-	}
+	void DetectDevices() override;
 
-
-	const char* GetName() const override { return "BrainFlow Devices"; }
-	uint32 GetType() const override { return DeviceTypeIDs::DEVICE_TYPEID_BRAINFLOW; }
+	const char* GetName() const;
+	uint32 GetType() const;
 	bool HasAutoDetectionSupport() const override { return false; }
-	Device* CreateDevice(uint32 deviceTypeID) override { return deviceConnect(deviceTypeID, BrainFlowInputParams()); };
-	bool Init() override { return true; };
+	bool Init() override;
 	void Update(const Core::Time& delta, const Core::Time& elapsed) override {};
 
+	void OnDeviceAdded(Device* device) override;
+	void OnRemoveDevice(Device* device) override;
+
+	Device* CreateDevice(BoardIds boardId, BrainFlowInputParams params);
 private:
-	Core::Array<BrainFlowDevice*> mDevices;
+	Device* CreateDevice(uint32 deviceTypeID) override { return nullptr; };
 };
 
 #endif

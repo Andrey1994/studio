@@ -35,23 +35,57 @@
 
 using namespace Core;
 
-BrainFlowDevice* BrainFlowDriver::deviceConnect(int boardId, const BrainFlowInputParams& params)
+BrainFlowDriver::BrainFlowDriver() : DeviceDriver(true) 
 {
-	auto device = std::make_unique<BrainFlowDevice>(boardId, params, this);
-	device->Init();
-	mDevices.Add(device.release());
-	return mDevices.GetLast();
+	CORE_EVENTMANAGER.AddEventHandler(this);
+	AddSupportedDevice(BrainFlowDevice::TYPE_ID);
 }
 
-void BrainFlowDriver::deviceDisconnect(BrainFlowDevice& device)
-{
-	auto deviceIndex = mDevices.Find(&device);
-	if (deviceIndex == CORE_INVALIDINDEX32)
+void BrainFlowDriver::DetectDevices() {
+	SetEnabled();
+	if (auto* device = GetDeviceManager()->FindDeviceByType(BrainFlowDevice::TYPE_ID, 0))
 	{
-		// FAIL
-		return;
+		GetDeviceManager()->RemoveDeviceAsync(device);
 	}
-	device.Release();
-	mDevices.Remove(deviceIndex);
+	else
+	{
+		device = CreateDevice(BoardIds::SYNTHETIC_BOARD, BrainFlowInputParams());
+		GetDeviceManager()->AddDeviceAsync(device);
+	}
+}
+
+const char* BrainFlowDriver::GetName() const 
+{
+	return "BrainFlow Driver"; 
+}
+
+uint32 BrainFlowDriver::GetType() const 
+{
+	return DeviceTypeIDs::DRIVER_TYPEID_BRAINFLOW;
+}
+
+bool BrainFlowDriver::Init() 
+{
+	return true; 
+}
+
+void BrainFlowDriver::OnDeviceAdded(Device* device)
+{
+	if (IsDeviceSupported(device->GetType()))
+	{
+		if (!device->Connect())
+			GetDeviceManager()->RemoveDeviceAsync(device);
+	}
+}
+
+void BrainFlowDriver::OnRemoveDevice(Device* device)
+{
+	if (IsDeviceSupported(device->GetType()))
+		device->Disconnect();
+}
+
+Device* BrainFlowDriver::CreateDevice(BoardIds boardId, BrainFlowInputParams params)
+{
+	return new BrainFlowDevice(boardId, std::move(params), this);
 }
 #endif
