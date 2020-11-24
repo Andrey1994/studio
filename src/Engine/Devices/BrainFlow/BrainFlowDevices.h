@@ -83,6 +83,8 @@ public:
 	double GetExpectedJitter () const override						{ return 0.1; }
 	bool IsWireless () const override								{ return true; }
 	double GetTimeoutLimit() const override							{ return 60; } // Long timeout limit because channel config takes so long
+
+	void Update(const Core::Time& elapsed, const Core::Time& delta) override;
 };
 
 class BrainFlowDevice : public BciDevice
