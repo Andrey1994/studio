@@ -205,7 +205,7 @@ void DriverInventory::RegisterDrivers()
 #endif
 
 #ifdef INCLUDE_DEVICE_BRAINFLOW
-	//if (user->ReadAllowed(HeartRateDevice::GetRuleName()) == true)
+	//if (user->ReadAllowed(BrainFlowDevice::GetRuleName()) == true)
 	{
 		auto* driver = new BrainFlowDriver();
 		driver->Init();

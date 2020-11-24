@@ -60,7 +60,7 @@ public:
 
 
 	const char* GetName() const override { return "BrainFlow Devices"; }
-	uint32 GetType() const override { return DeviceTypeIDs::DEVICE_TYPEID_BRAINFLOW_BASE; }
+	uint32 GetType() const override { return DeviceTypeIDs::DEVICE_TYPEID_BRAINFLOW; }
 	bool HasAutoDetectionSupport() const override { return false; }
 	Device* CreateDevice(uint32 deviceTypeID) override { return deviceConnect(deviceTypeID, BrainFlowInputParams()); };
 	bool Init() override { return true; };
@@ -68,56 +68,6 @@ public:
 
 private:
 	Core::Array<BrainFlowDevice*> mDevices;
-};
-
-class BrainFlowDriverBase : public QObject, public DeviceDriver, public Core::EventHandler
-{
-	Q_OBJECT
-	public:
-		enum { TYPE_ID = DeviceTypeIDs::DEVICE_TYPEID_BRAINFLOW_BASE};
-
-		// constructor & destructor
-		BrainFlowDriverBase() : DeviceDriver(false), EventHandler()			{}
-		virtual ~BrainFlowDriverBase();
-
-		const char* GetName() const override								{ return "BrainFlow Devices"; }
-
-		uint32 GetType() const override										{ return TYPE_ID; }
-
-		bool HasAutoDetectionSupport() const override						{ return false; }
-
-		// add device
-		void AddDevice(BrainFlowDeviceBase* device);
-
-		// event handler (removes serial threads)
-		void OnRemoveDevice(Device* device) override;
-
-		// must be implemented in subclasses
-		virtual BrainFlowInputParams GetParams() = 0;
-
-	private:
-		// list to keep track of connected devices (index-matched with theh serial thread array below)
-		Core::Array<BrainFlowDeviceBase*> mDevices;
-
-};
-
-class BrainFlowDriverCyton : public BrainFlowDriverBase
-{
-	Q_OBJECT
-
-	public:
-		enum { TYPE_ID = DeviceTypeIDs::DEVICE_TYPEID_BRAINFLOW_CYTON };
-
-		// constructor & destructor
-		BrainFlowDriverCyton();
-
-		Device* CreateDevice(uint32 deviceTypeID) override;
-		bool Init() override;
-		void Update(const Core::Time& delta, const Core::Time& elapsed) override;
-		BrainFlowInputParams GetParams() override;
-
-	private:
-		double		mTimeSinceDeviceCheck;
 };
 
 #endif
