@@ -39,7 +39,7 @@ class ENGINE_API BrainFlowCytonNode : public DeviceInputNode
 		enum { TYPE_ID = 0xD00000 | BrainFlowDevice::TYPE_ID };
 		static const char* Uuid()												{ return "283fc2da-fe1b-11e4-a322-1697f925ec7c"; }
 
-		BrainFlowCytonNode(Graph* parentGraph) : DeviceInputNode(parentGraph, BrainFlowCytonNode::TYPE_ID)		{}
+		BrainFlowCytonNode(Graph* parentGraph) : DeviceInputNode(parentGraph, BrainFlowDevice::TYPE_ID)		{}
 		~BrainFlowCytonNode()				   																	{}
 
 		Core::Color GetColor() const override									{ return Core::RGBA(60,120,210); }
