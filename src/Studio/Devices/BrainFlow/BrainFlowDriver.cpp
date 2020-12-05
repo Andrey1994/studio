@@ -85,6 +85,7 @@ void BrainFlowDriver::OnRemoveDevice(Device* device)
 		device->Disconnect();
 }
 
+
 void BrainFlowDriver::OnRemoveNode(Graph* graph, Node* node)
 {
 	if (auto* brainFlowNode = dynamic_cast<BrainFlowNode*>(node))
