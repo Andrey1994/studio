@@ -51,8 +51,10 @@ public:
 	static const char* GetRuleName() { return "BrainFlowDevice_rule"; }
 	void Update(const Core::Time& elapsed, const Core::Time& delta) override;
 
+	const BrainFlowInputParams& GetParams() const { return mParams; }
+	int GetBoardId() const;
+
 private:
-	int getBoardId() const;
 	void CreateElectrodes();
 	Device* Clone() override { return new BrainFlowDevice(); }
 

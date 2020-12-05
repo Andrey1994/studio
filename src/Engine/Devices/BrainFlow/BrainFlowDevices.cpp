@@ -44,7 +44,9 @@ BrainFlowDevice::BrainFlowDevice(BoardIds boardId, BrainFlowInputParams params, 
 
 bool BrainFlowDevice::Connect()
 {
-	mBoard = std::make_unique<BoardShim>(getBoardId(), mParams);
+	mBoard = std::make_unique<BoardShim>(GetBoardId(), mParams);
+	BoardShim::enable_dev_board_logger();
+	BoardShim::set_log_file("brainflow.log");
 	try
 	{
 		mBoard->prepare_session();
@@ -77,7 +79,7 @@ bool BrainFlowDevice::Disconnect()
 	return Device::Disconnect();
 }
 
-int BrainFlowDevice::getBoardId() const
+int BrainFlowDevice::GetBoardId() const
 {
 	return static_cast<int>(mBoardId);
 }
@@ -86,22 +88,29 @@ int BrainFlowDevice::getBoardId() const
 void BrainFlowDevice::CreateElectrodes()
 {
 	mElectrodes.Clear();
+	int len = 0;
+	std::string* eegNames;
 	try
 	{
-		int len = 0;
-		std::string* eegNames = BoardShim::get_eeg_names(getBoardId(), &len);
-		mElectrodes.Reserve(len);
-		// todo check that BrainFlow IDs match studio IDs
-		for (int i = 0; i < len; i++)
-		{
-			mElectrodes.Add(GetEEGElectrodes()->GetElectrodeByID(eegNames[i].c_str()));
-		}
+		eegNames = BoardShim::get_eeg_names(GetBoardId(), &len);
 	}
 	catch (const BrainFlowException& err)
 	{
+		BoardShim::get_eeg_channels(GetBoardId(), &len);
+		eegNames = new std::string[len];
+		for (int i = 0; i < len; ++i)
+			eegNames[i] = "Ch" + std::to_string(i + 1);
 		LogError(err.what());
 	}
+	mElectrodes.Reserve(len);
+	// todo check that BrainFlow IDs match studio IDs
+	for (int i = 0; i < len; i++)
+	{
+		mElectrodes.Add(GetEEGElectrodes()->GetElectrodeByID(eegNames[i].c_str()));
+	}
+	delete[] eegNames;
 }
+	
 
 
 void BrainFlowDevice::Update(const Core::Time& elapsed, const Core::Time& delta)
@@ -114,7 +123,7 @@ void BrainFlowDevice::Update(const Core::Time& elapsed, const Core::Time& delta)
 		double** board_data;
 		board_data = mBoard->get_board_data(&data_count);
 		int channels_count;
-		int* channels_numbers = BoardShim::get_eeg_channels(getBoardId(), &channels_count);
+		int* channels_numbers = BoardShim::get_eeg_channels(GetBoardId(), &channels_count);
 		for (uint32 i = 0; i < mSensors.Size(); ++i)
 		{
 			auto* sensor = mSensors[i];
@@ -139,7 +148,7 @@ void BrainFlowDevice::Update(const Core::Time& elapsed, const Core::Time& delta)
 double BrainFlowDevice::GetSampleRate() const {
 	try
 	{
-		return BoardShim::get_sampling_rate(getBoardId());
+		return BoardShim::get_sampling_rate(GetBoardId());
 	}
 	catch (const BrainFlowException& err)
 	{

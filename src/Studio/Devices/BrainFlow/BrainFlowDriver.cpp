@@ -25,6 +25,7 @@
 #include "BrainFlowDriver.h"
 #include "../DeviceHelpers.h"
 #include <Devices/BrainFlow/BrainFlowDevices.h>
+#include <Devices/BrainFlow/BrainFlowNodes.h>
 #include <EngineManager.h>
 #include <System/SerialPort.h>
 #include <QApplication>
@@ -82,6 +83,13 @@ void BrainFlowDriver::OnRemoveDevice(Device* device)
 {
 	if (IsDeviceSupported(device->GetType()))
 		device->Disconnect();
+}
+
+void BrainFlowDriver::OnRemoveNode(Graph* graph, Node* node)
+{
+	if (auto* brainFlowNode = dynamic_cast<BrainFlowNode*>(node))
+		if (auto* currentDevice = brainFlowNode->GetCurrentDevice())
+			GetDeviceManager()->RemoveDeviceAsync(currentDevice);
 }
 
 Device* BrainFlowDriver::CreateDevice(BoardIds boardId, BrainFlowInputParams params)
