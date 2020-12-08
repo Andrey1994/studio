@@ -16,6 +16,14 @@ namespace
 			&& left.serial_number == right.serial_number
 			&& left.file == right.file;
 	}
+
+	constexpr int MinBoardID = -3;
+	constexpr int MaxBoardID = 17;
+	constexpr int DefaultBoardID = static_cast<int>(BoardIds::SYNTHETIC_BOARD);
+
+	constexpr int MinIPPortValue = 1;
+	constexpr int MaxIPPortValue = 65535;
+	constexpr int DefaultIPPortValue = 50000;
 }
 
 void BrainFlowNode::Init()
@@ -23,9 +31,9 @@ void BrainFlowNode::Init()
 	DeviceInputNode::Init();
 	{
 		Core::AttributeSettings* attribute = RegisterAttribute("Board ID", "boardID", "Identificator of the board", Core::ATTRIBUTE_INTERFACETYPE_INTSPINNER);
-		attribute->SetDefaultValue(Core::AttributeInt32::Create(-1));
-		attribute->SetMinValue(Core::AttributeInt32::Create(-3));
-		attribute->SetMaxValue(Core::AttributeInt32::Create(17));
+		attribute->SetDefaultValue(Core::AttributeInt32::Create(DefaultBoardID));
+		attribute->SetMinValue(Core::AttributeInt32::Create(MinBoardID));
+		attribute->SetMaxValue(Core::AttributeInt32::Create(MaxBoardID));
 	}
 	{
 		Core::AttributeSettings* attribute = RegisterAttribute("Serial port", "serialPort", "Serial port", Core::ATTRIBUTE_INTERFACETYPE_STRING);
@@ -41,9 +49,9 @@ void BrainFlowNode::Init()
 	}
 	{
 		Core::AttributeSettings* attribute = RegisterAttribute("IP port", "ipPort", "IP port", Core::ATTRIBUTE_INTERFACETYPE_INTSPINNER);
-		attribute->SetDefaultValue(Core::AttributeInt32::Create(0));
-		attribute->SetMinValue(Core::AttributeInt32::Create(1));
-		attribute->SetMaxValue(Core::AttributeInt32::Create(65536));
+		attribute->SetDefaultValue(Core::AttributeInt32::Create(DefaultIPPortValue));
+		attribute->SetMinValue(Core::AttributeInt32::Create(MinIPPortValue));
+		attribute->SetMaxValue(Core::AttributeInt32::Create(MaxIPPortValue));
 	}
 	{
 		Core::AttributeSettings* attribute = RegisterAttribute("IP protocol", "ipProtocol", "IP protocol", Core::ATTRIBUTE_INTERFACETYPE_COMBOBOX);
