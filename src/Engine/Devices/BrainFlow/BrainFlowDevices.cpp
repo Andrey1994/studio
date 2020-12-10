@@ -54,6 +54,7 @@ bool BrainFlowDevice::Connect()
 	}
 	catch (const BrainFlowException& err)
 	{
+		Disconnect();
 		mBoard.reset();
 		LogError(err.what());
 		return false;
@@ -68,7 +69,6 @@ bool BrainFlowDevice::Disconnect()
 	{
 		try
 		{
-			mBoard->stop_stream();
 			mBoard->release_session();
 		}
 		catch (const BrainFlowException& err)
@@ -175,6 +175,7 @@ double BrainFlowDevice::GetSampleRate() const {
 	catch (const BrainFlowException& err)
 	{
 		LogError(err.what());
+		return 200;
 	}
 };
 

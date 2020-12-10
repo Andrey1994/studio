@@ -4,41 +4,52 @@
 
 namespace
 {
-	bool operator==(const BrainFlowInputParams& left, const BrainFlowInputParams& right)
-	{
-		return left.serial_port == right.serial_port
-			&& left.mac_address == right.mac_address
-			&& left.ip_address == right.ip_address
-			&& left.ip_port == right.ip_port
-			&& left.ip_protocol == right.ip_protocol
-			&& left.other_info == right.other_info
-			&& left.timeout == right.timeout
-			&& left.serial_number == right.serial_number
-			&& left.file == right.file;
-	}
-
-	bool operator!=(const BrainFlowInputParams& left, const BrainFlowInputParams& right)
-	{
-		return !(left == right);
-	}
-
-	constexpr int MinBoardID = -3;
-	constexpr int MaxBoardID = 17;
+	constexpr int MinBoardID = static_cast<int>(BoardIds::FIRST);
+	constexpr int MaxBoardID = static_cast<int>(BoardIds::LAST);
+	constexpr int BoardIDSize = MaxBoardID - MinBoardID + 1;
+	constexpr int BoardIDShift = MinBoardID < 0 ? -MinBoardID : 0; // shift until zero
 	constexpr int DefaultBoardID = static_cast<int>(BoardIds::SYNTHETIC_BOARD);
 
 	constexpr int MinIPPortValue = 1;
 	constexpr int MaxIPPortValue = 65535;
 	constexpr int DefaultIPPortValue = 50000;
+
+	constexpr auto DefaultIPAddressValue = "127.0.0.1";
+
+
+	unsigned boardIDToBoardIndex(int boardID)
+	{
+		return boardID + BoardIDShift;
+	}
+
+	int boardIndexToBoardID(unsigned boardIndex)
+	{
+		return static_cast<int>(boardIndex) - BoardIDShift;
+	}
+
+
+	std::string getDeviceNameSafely(int boardID)
+	{
+		try {
+			return BoardShim::get_device_name(boardID);
+		}
+		catch (...)
+		{
+			return "";
+		}
+	}
 }
 
 void BrainFlowNode::Init()
 {
 	DeviceInputNode::Init();
 	{
-		Core::AttributeSettings* attribute = RegisterAttribute("Board ID", "boardID", "Identificator of the board", Core::ATTRIBUTE_INTERFACETYPE_INTSPINNER);
-		attribute->SetDefaultValue(Core::AttributeInt32::Create(DefaultBoardID));
-		attribute->SetMinValue(Core::AttributeInt32::Create(MinBoardID));
-		attribute->SetMaxValue(Core::AttributeInt32::Create(MaxBoardID));
+
+		Core::AttributeSettings* attribute = RegisterAttribute("Board ID", "boardID", "Identificator of the board", Core::ATTRIBUTE_INTERFACETYPE_COMBOBOX);
+		attribute->ResizeComboValues(BoardIDSize);
+		for (int boardID = MinBoardID; boardID <= MaxBoardID; ++boardID)
+			attribute->SetComboValue(boardIDToBoardIndex(boardID), getDeviceNameSafely(boardID).c_str());
+		attribute->SetDefaultValue(Core::AttributeInt32::Create(boardIDToBoardIndex(DefaultBoardID)));
 	}
 	{
 		Core::AttributeSettings* attribute = RegisterAttribute("Serial port", "serialPort", "Serial port", Core::ATTRIBUTE_INTERFACETYPE_STRING);
@@ -50,7 +61,7 @@ void BrainFlowNode::Init()
 	}
 	{
 		Core::AttributeSettings* attribute = RegisterAttribute("IP address", "ipAddress", "IP address", Core::ATTRIBUTE_INTERFACETYPE_STRING);
-		attribute->SetDefaultValue(Core::AttributeString::Create(""));
+		attribute->SetDefaultValue(Core::AttributeString::Create(DefaultIPAddressValue));
 	}
 	{
 		Core::AttributeSettings* attribute = RegisterAttribute("IP port", "ipPort", "IP port", Core::ATTRIBUTE_INTERFACETYPE_INTSPINNER);
@@ -84,6 +95,10 @@ void BrainFlowNode::Init()
 		Core::AttributeSettings* attribute = RegisterAttribute("File", "file", "File", Core::ATTRIBUTE_INTERFACETYPE_STRING);
 		attribute->SetDefaultValue(Core::AttributeString::Create(""));
 	}
+	{
+		Core::AttributeSettings* attribute = RegisterAttribute("Apply", "apply", "Apply", Core::ATTRIBUTE_INTERFACETYPE_CHECKBOX);
+		attribute->SetDefaultValue(Core::AttributeBool::Create(false));
+	}
 
 	GetAttributeSettings(ATTRIB_RAWOUTPUT)->SetVisible(false);
 	GetAttributeSettings(ATTRIB_UPLOAD)->SetVisible(false);
@@ -92,8 +107,10 @@ void BrainFlowNode::Init()
 
 void BrainFlowNode::OnAttributesChanged()
 {
+	if (!GetBoolAttributeByName("apply"))
+		return;
+	SetBoolAttribute("apply", false);
 	SynchronizeParams();
-
 	// check current device is synced with params
 	if (auto* currentDevice = GetCurrentDevice())
 	{
@@ -103,16 +120,16 @@ void BrainFlowNode::OnAttributesChanged()
 		// remove current device if there are any changes
 		GetDeviceManager()->RemoveDeviceAsync(currentDevice);
 	}
-
 	CreateNewDevice();
 }
 
 Device* BrainFlowNode::FindDevice()
 {
-	for (int i = 0; i < GetDeviceManager()->GetNumDevices(); ++i)
+	for (unsigned i = 0; i < GetDeviceManager()->GetNumDevices(); ++i)
 		if (auto* device = dynamic_cast<BrainFlowDevice*>(GetDeviceManager()->GetDevice(i)))
 			if (device->GetParams() == GetParams() && device->GetBoardId() == GetBoardID())
 				return device;
+
 	return nullptr;
 }
 
@@ -136,7 +153,7 @@ void BrainFlowNode::ReInit(const Core::Time& elapsed, const Core::Time& delta)
 
 void BrainFlowNode::SynchronizeParams()
 {
-	mBoardID = GetInt32AttributeByName("boardID");
+	mBoardID = boardIndexToBoardID(GetInt32AttributeByName("boardID"));
 	mParams.serial_port = GetStringAttributeByName("serialPort");
 	mParams.mac_address = GetStringAttributeByName("macAddress");
 	mParams.ip_address = GetStringAttributeByName("ipAddress");
