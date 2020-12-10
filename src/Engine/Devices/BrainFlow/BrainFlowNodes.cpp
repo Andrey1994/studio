@@ -17,6 +17,11 @@ namespace
 			&& left.file == right.file;
 	}
 
+	bool operator!=(const BrainFlowInputParams& left, const BrainFlowInputParams& right)
+	{
+		return !(left == right);
+	}
+
 	constexpr int MinBoardID = -3;
 	constexpr int MaxBoardID = 17;
 	constexpr int DefaultBoardID = static_cast<int>(BoardIds::SYNTHETIC_BOARD);
@@ -82,6 +87,7 @@ void BrainFlowNode::Init()
 
 	GetAttributeSettings(ATTRIB_RAWOUTPUT)->SetVisible(false);
 	GetAttributeSettings(ATTRIB_UPLOAD)->SetVisible(false);
+	GetAttributeSettings(ATTRIB_DEVICEINDEX)->SetVisible(false);
 }
 
 void BrainFlowNode::OnAttributesChanged()
@@ -99,6 +105,33 @@ void BrainFlowNode::OnAttributesChanged()
 	}
 
 	CreateNewDevice();
+}
+
+Device* BrainFlowNode::FindDevice()
+{
+	for (int i = 0; i < GetDeviceManager()->GetNumDevices(); ++i)
+		if (auto* device = dynamic_cast<BrainFlowDevice*>(GetDeviceManager()->GetDevice(i)))
+			if (device->GetParams() == GetParams() && device->GetBoardId() == GetBoardID())
+				return device;
+	return nullptr;
+}
+
+void BrainFlowNode::ReInit(const Core::Time& elapsed, const Core::Time& delta)
+{
+	if (auto* device = FindDevice())
+	{
+		if (device != GetCurrentDevice())
+		{
+			// setup the output ports
+			RegisterDeviceSensorsAsPorts(device);
+			UseChannelColoring();
+		}
+	}
+	else if (auto* currentDevice = GetCurrentDevice())
+	{
+		GetDeviceManager()->RemoveDeviceAsync(currentDevice);
+	}
+	DeviceInputNode::ReInit(elapsed, delta);
 }
 
 void BrainFlowNode::SynchronizeParams()
@@ -120,7 +153,6 @@ void BrainFlowNode::CreateNewDevice()
 	// create new device
 	if (auto* deviceManager = GetDeviceManager())
 		if (auto* deviceDriver = deviceManager->FindDeviceDriverByDeviceType(BrainFlowDevice::TYPE_ID))
-			if (auto* newDevice = new BrainFlowDevice(
-				static_cast<BoardIds>(GetBoardID()), GetParams(), deviceDriver))
+			if (auto* newDevice = new BrainFlowDevice(static_cast<BoardIds>(GetBoardID()), GetParams(),	deviceDriver))
 				GetDeviceManager()->AddDeviceAsync(newDevice);
 }

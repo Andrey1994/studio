@@ -61,6 +61,10 @@ class ENGINE_API BrainFlowNode : public DeviceInputNode
 
 		BrainFlowDevice* GetCurrentDevice() { return dynamic_cast<BrainFlowDevice*>(mCurrentDevice); }
 
+		Device* FindDevice();
+
+		void ReInit(const Core::Time& elapsed, const Core::Time& delta) override;
+
 	private:
 		void SynchronizeParams();
 		void CreateNewDevice();

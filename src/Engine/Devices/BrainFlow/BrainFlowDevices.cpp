@@ -58,6 +58,7 @@ bool BrainFlowDevice::Connect()
 		LogError(err.what());
 		return false;
 	}
+	CreateSensors();
 	return Device::Connect();
 }
 
@@ -87,20 +88,41 @@ int BrainFlowDevice::GetBoardId() const
 // get the available electrodes of the neuro headset
 void BrainFlowDevice::CreateElectrodes()
 {
+	// clear existed sensors/electrodes
 	mElectrodes.Clear();
+	mDefaultElectrodes.Clear();
+	mNeuroSensors.Clear();
+	mInputSensors.Clear();
+	mOutputSensors.Clear();
+	for (int i = 0; i < mSensors.Size(); ++i)
+		delete mSensors[i];
+	mSensors.Clear();
+
 	int len = 0;
 	std::string* eegNames;
-	try
+	
+	if (mBoard && mBoard->is_prepared())
 	{
-		eegNames = BoardShim::get_eeg_names(GetBoardId(), &len);
+		try
+		{
+			eegNames = BoardShim::get_eeg_names(GetBoardId(), &len);
+		}
+		catch (const BrainFlowException& err)
+		{
+			LogError(err.what());
+			BoardShim::get_eeg_channels(GetBoardId(), &len);
+			eegNames = new std::string[len];
+			for (int i = 0; i < len; ++i)
+				eegNames[i] = "";
+
+		}
 	}
-	catch (const BrainFlowException& err)
+	else
 	{
-		BoardShim::get_eeg_channels(GetBoardId(), &len);
+		// create dummy electrode
+		len = 1;
 		eegNames = new std::string[len];
-		for (int i = 0; i < len; ++i)
-			eegNames[i] = "Ch" + std::to_string(i + 1);
-		LogError(err.what());
+		eegNames[len - 1] = "";
 	}
 	mElectrodes.Reserve(len);
 	// todo check that BrainFlow IDs match studio IDs
