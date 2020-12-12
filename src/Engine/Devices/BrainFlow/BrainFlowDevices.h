@@ -30,6 +30,9 @@
 
 #include "brainflow/board_shim.h"
 
+#include <future>
+
+
 #ifdef INCLUDE_DEVICE_BRAINFLOW
 
 
@@ -57,6 +60,8 @@ public:
 private:
 	void CreateElectrodes();
 	Device* Clone() override { return new BrainFlowDevice(); }
+	bool DoesConnectingFinished() const;
+	bool InitAfterConnected();
 
 	// information
 	double GetSampleRate() const override;
@@ -65,6 +70,7 @@ private:
 private:
 	const BoardIds mBoardId;
 	const BrainFlowInputParams mParams;
+	std::future<std::unique_ptr<BoardShim>> mFuture;
 	std::unique_ptr<BoardShim> mBoard = nullptr;
 };
 

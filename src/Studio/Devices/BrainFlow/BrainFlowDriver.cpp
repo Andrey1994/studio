@@ -73,10 +73,7 @@ bool BrainFlowDriver::Init()
 void BrainFlowDriver::OnDeviceAdded(Device* device)
 {
 	if (IsDeviceSupported(device->GetType()))
-	{
-		if (!device->Connect())
-			GetDeviceManager()->RemoveDeviceAsync(device);
-	}
+		device->Connect();
 }
 
 void BrainFlowDriver::OnRemoveDevice(Device* device)
