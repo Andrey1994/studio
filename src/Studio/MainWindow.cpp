@@ -529,7 +529,6 @@ void MainWindow::OnPostAuthenticationInit()
 	if (GetUser()->ReadAllowed(TestDevice::GetRuleName()))
 		GetDeviceManager()->AddDeviceDriver(new TestDeviceDriver());
 	#endif
-
 	// load device configs (requires all devices to be present)
 	GetManager()->SetSplashScreenMessage("Loading device definitions...");
 	LoadDeviceConfigs();

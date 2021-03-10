@@ -42,6 +42,8 @@
     <ClCompile Include="..\..\src\Studio\Devices\Bluetooth\BluetoothDriver.moc.cpp" />
     <ClCompile Include="..\..\src\Studio\Devices\Bluetooth\BluetoothService.cpp" />
     <ClCompile Include="..\..\src\Studio\Devices\Bluetooth\BluetoothService.moc.cpp" />
+    <ClCompile Include="..\..\src\Studio\Devices\BrainFlow\BrainFlowDriver.cpp" />
+    <ClCompile Include="..\..\src\Studio\Devices\BrainFlow\BrainFlowDriver.moc.cpp" />
     <ClCompile Include="..\..\src\Studio\Devices\BrainProducts\ActiChampDriver.cpp" />
     <ClCompile Include="..\..\src\Studio\Devices\Brainquiry\BrainquiryDriver.cpp" />
     <ClCompile Include="..\..\src\Studio\Devices\Brainquiry\BrainquiryDriver.moc.cpp">
@@ -288,6 +290,7 @@
     <ClInclude Include="..\..\src\Studio\Devices\Bluetooth\BluetoothDevice.h" />
     <ClInclude Include="..\..\src\Studio\Devices\Bluetooth\BluetoothDriver.h" />
     <ClInclude Include="..\..\src\Studio\Devices\Bluetooth\BluetoothService.h" />
+    <ClInclude Include="..\..\src\Studio\Devices\BrainFlow\BrainFlowDriver.h" />
     <ClInclude Include="..\..\src\Studio\Devices\BrainProducts\ActiChampDriver.h" />
     <ClInclude Include="..\..\src\Studio\Devices\Brainquiry\BrainquiryDriver.h" />
     <ClInclude Include="..\..\src\Studio\Devices\Brainquiry\BrainquirySerialHandler.h" />
@@ -558,6 +561,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <SubSystem>Console</SubSystem>
       <MinimumRequiredVersion>6.02</MinimumRequiredVersion>
+      <AdditionalDependencies>BrainFlow.lib;BoardController.lib;DataHandler.lib;MLModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>setlocal
@@ -571,7 +575,8 @@ Studio.cmd
       <Message>QT RCC+MOC</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy ..\..\deps\prebuilt\win\x86\*.dll bin\x86\</Command>
+      <Command>copy ..\..\deps\prebuilt\win\x86\*.dll bin\x86\
+copy ..\..\deps\prebuilt\win\x86\Debug\*.dll bin\x86\</Command>
       <Message>Copy prebuilt</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -611,10 +616,11 @@ Studio.cmd
       <MinimumRequiredVersion>6.00</MinimumRequiredVersion>
     </Lib>
     <Link>
-      <AdditionalLibraryDirectories>lib\x64;..\..\deps\prebuilt\win\x64;..\..\deps\build\vs\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>lib\x64;..\..\deps\prebuilt\win\x64;..\..\deps\build\vs\lib\x64;..\..\deps\prebuilt\win\x64\Debug</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <SubSystem>Console</SubSystem>
       <MinimumRequiredVersion>6.02</MinimumRequiredVersion>
+      <AdditionalDependencies>BrainFlow.lib;BoardController.lib;DataHandler.lib;MLModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>setlocal
@@ -628,7 +634,8 @@ Studio.cmd
       <Message>QT RCC+MOC</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy ..\..\deps\prebuilt\win\x64\*.dll bin\x64\</Command>
+      <Command>copy ..\..\deps\prebuilt\win\x64\*.dll bin\x64\
+copy ..\..\deps\prebuilt\win\x64\Debug\*.dll bin\x64\</Command>
       <Message>Copy prebuilt</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -682,6 +689,7 @@ Studio.cmd
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <SetChecksum>true</SetChecksum>
+      <AdditionalDependencies>BrainFlow.lib;BoardController.lib;DataHandler.lib;MLModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>setlocal
@@ -696,7 +704,8 @@ Studio.cmd
       <Message>QT RCC+MOC</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy ..\..\deps\prebuilt\win\x86\*.dll bin\x86\</Command>
+      <Command>copy ..\..\deps\prebuilt\win\x86\*.dll bin\x86\
+copy ..\..\deps\prebuilt\win\x86\Release\*.dll bin\x86\</Command>
       <Message>Copy prebuilt</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -750,6 +759,7 @@ Studio.cmd
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <SetChecksum>true</SetChecksum>
+      <AdditionalDependencies>BrainFlow.lib;BoardController.lib;DataHandler.lib;MLModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>setlocal
@@ -764,7 +774,8 @@ Studio.cmd
       <Message>QT RCC+MOC</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy ..\..\deps\prebuilt\win\x86\*.dll bin\x86\</Command>
+      <Command>copy ..\..\deps\prebuilt\win\x86\*.dll bin\x86\
+copy ..\..\deps\prebuilt\win\x86\Release\*.dll bin\x86\</Command>
       <Message>Copy prebuilt</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -813,13 +824,14 @@ Studio.cmd
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
     <Link>
-      <AdditionalLibraryDirectories>lib\x64;..\..\deps\prebuilt\win\x64;..\..\deps\build\vs\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>lib\x64;..\..\deps\prebuilt\win\x64;..\..\deps\build\vs\lib\x64;..\..\deps\prebuilt\win\x64\Release</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <SubSystem>Console</SubSystem>
       <MinimumRequiredVersion>6.02</MinimumRequiredVersion>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <SetChecksum>true</SetChecksum>
+      <AdditionalDependencies>BrainFlow.lib;BoardController.lib;DataHandler.lib;MLModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>setlocal
@@ -833,7 +845,8 @@ Studio.cmd
       <Message>QT RCC+MOC</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy ..\..\deps\prebuilt\win\x64\*.dll bin\x64\</Command>
+      <Command>copy ..\..\deps\prebuilt\win\x64\*.dll bin\x64\
+copy ..\..\deps\prebuilt\win\x64\Release\*.dll bin\x64\</Command>
       <Message>Copy prebuilt</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -889,6 +902,7 @@ Studio.cmd
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <SetChecksum>true</SetChecksum>
+      <AdditionalDependencies>BrainFlow.lib;BoardController.lib;DataHandler.lib;MLModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>setlocal
@@ -902,8 +916,9 @@ Studio.cmd
       <Message>QT RCC+MOC</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy ..\..\deps\prebuilt\win\x64\*.dll bin\x64\</Command>
       <Message>Copy prebuilt</Message>
+      <Command>copy ..\..\deps\prebuilt\win\x64\*.dll bin\x64\
+copy ..\..\deps\prebuilt\win\x64\Release\*.dll bin\x64\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
