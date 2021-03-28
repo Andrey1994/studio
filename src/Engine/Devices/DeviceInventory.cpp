@@ -92,6 +92,8 @@
 #ifdef INCLUDE_DEVICE_BRAINFLOW
 #include "BrainFlow/BrainFlowDevices.h"
 #include "BrainFlow/BrainFlowNodes.h"
+#include "BrainFlow/BrainFlowCytonNode.h"
+#include "BrainFlow/BrainFlowGanglionNode.h"
 #endif
 
 #include "Generic/GenericDevices.h"
@@ -282,6 +284,12 @@ void DeviceInventory::RegisterDevices(bool disablePermissionCheck)
 	{
 		GetDeviceManager()->RegisterDeviceType(new BrainFlowDevice());
 		GetGraphObjectFactory()->RegisterObjectType(new BrainFlowNode(NULL));
+
+		GetDeviceManager()->RegisterDeviceType(new BrainFlowCytonDevice());
+		GetGraphObjectFactory()->RegisterObjectType(new BrainFlowCytonNode(NULL));
+
+		GetDeviceManager()->RegisterDeviceType(new BrainFlowGanglionDevice());
+		GetGraphObjectFactory()->RegisterObjectType(new BrainFlowGanglionNode(NULL));
 	}
 #endif
 

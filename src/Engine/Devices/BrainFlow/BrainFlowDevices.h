@@ -40,13 +40,14 @@ class BrainFlowDevice : public BciDevice
 public:
 	enum { TYPE_ID = DeviceTypeIDs::DEVICE_TYPEID_BRAINFLOW };
 
+	virtual ~BrainFlowDevice() {}
 	BrainFlowDevice(DeviceDriver* deviceDriver = nullptr);
 	BrainFlowDevice(BoardIds boardId, BrainFlowInputParams params, DeviceDriver* deviceDriver = nullptr);
 
 	bool Connect() override;
 	bool Disconnect() override;
 	
-	uint32 GetType() const override { return TYPE_ID; }
+	virtual uint32 GetType() const override { return BrainFlowDevice::TYPE_ID; }
 	const char* GetTypeName() const override { return "BrainFlowDevice_type"; }
 	const char* GetHardwareName() const override { return "BrainFlowDevice_hardware"; }
 	const char* GetUuid() const override { return "5108993a-fe1b-11e4-a322-1697f925e000"; }
@@ -56,7 +57,7 @@ public:
 	const BrainFlowInputParams& GetParams() const { return mParams; }
 	int GetBoardId() const;
 
-private:
+protected:
 	void CreateElectrodes();
 	Device* Clone() override { return new BrainFlowDevice(); }
 	bool DoesConnectingFinished() const;
@@ -65,14 +66,47 @@ private:
 	// information
 	double GetSampleRate() const override;
 
-
-private:
 	const BoardIds mBoardId;
 	const BrainFlowInputParams mParams;
 	std::future<std::unique_ptr<BoardShim>> mFuture;
 	std::unique_ptr<BoardShim> mBoard = nullptr;
 };
 
+class BrainFlowCytonDevice : public BrainFlowDevice
+{
+public:
+	enum { TYPE_ID = DeviceTypeIDs::DEVICE_TYPEID_BRAINFLOW_CYTON };
+	virtual uint32 GetType() const override { return BrainFlowCytonDevice::TYPE_ID; }
+
+	BrainFlowCytonDevice(DeviceDriver* deviceDriver = nullptr) : BrainFlowDevice(deviceDriver)																	 {}
+	BrainFlowCytonDevice(BoardIds boardId, BrainFlowInputParams params, DeviceDriver* deviceDriver = nullptr) : BrainFlowDevice(boardId, params, deviceDriver)   {}
+
+	const char* GetTypeName() const override { return "BrainFlowCytonDevice_type"; }
+	const char* GetHardwareName() const override { return "BrainFlowCytonDevice_hardware"; }
+	const char* GetUuid() const override { return "5308993a-fe1b-11e4-a322-1697f925e000"; }
+	static const char* GetRuleName() { return "BrainFlowCytonDevice_rule"; }
+
+protected:
+	Device* Clone() override { return new BrainFlowCytonDevice(); }
+};
+
+class BrainFlowGanglionDevice : public BrainFlowDevice
+{
+public:
+	enum { TYPE_ID = DeviceTypeIDs::DEVICE_TYPEID_BRAINFLOW_GANGLION };
+	virtual uint32 GetType() const override { return BrainFlowGanglionDevice::TYPE_ID; }
+
+	BrainFlowGanglionDevice(DeviceDriver* deviceDriver = nullptr) : BrainFlowDevice(deviceDriver)																	{}
+	BrainFlowGanglionDevice(BoardIds boardId, BrainFlowInputParams params, DeviceDriver* deviceDriver = nullptr) : BrainFlowDevice(boardId, params, deviceDriver)   {}
+
+	const char* GetTypeName() const override { return "BrainFlowGanglionDevice_type"; }
+	const char* GetHardwareName() const override { return "BrainFlowGanglionDevice_hardware"; }
+	const char* GetUuid() const override { return "5208993a-fe1b-11e4-a322-1697f925e000"; }
+	static const char* GetRuleName() { return "BrainFlowGanglionDevice_rule"; }
+
+protected:
+	Device* Clone() override { return new BrainFlowGanglionDevice(); }
+};
 
 #endif
 

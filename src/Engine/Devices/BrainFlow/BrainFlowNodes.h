@@ -32,7 +32,6 @@
 #include "../../Graph/DeviceInputNode.h"
 #include <brainflow/board_controller/brainflow_input_params.h>
 
-// normal OpenBCI device node
 class ENGINE_API BrainFlowNode : public DeviceInputNode
 {
 	public:
@@ -42,22 +41,23 @@ class ENGINE_API BrainFlowNode : public DeviceInputNode
 		enum { TYPE_ID = 0xD00000 | BrainFlowDevice::TYPE_ID };
 		static const char* Uuid()												{ return "283fc2da-fe1b-11e4-a322-1697f925ec7c"; }
 
-		~BrainFlowNode()				   																	{}
-		BrainFlowNode(Graph* parentGraph) : DeviceInputNode(parentGraph, BrainFlowDevice::TYPE_ID)		{}
+		virtual ~BrainFlowNode()				   															{}
+		BrainFlowNode(Graph* parentGraph, uint32 id) : DeviceInputNode(parentGraph, id)						{ mBoardID = (int)BoardIds::SYNTHETIC_BOARD; }
+		BrainFlowNode(Graph* parentGraph) : DeviceInputNode(parentGraph, BrainFlowNode::TYPE_ID)			{ mBoardID = (int)BoardIds::SYNTHETIC_BOARD; }
 
 		Core::Color GetColor() const override									{ return Core::RGBA(60,120,210); }
-		uint32 GetType() const override											{ return TYPE_ID; }
-		const char* GetTypeUuid() const override final							{ return Uuid(); }
+		virtual uint32 GetType() const override									{ return BrainFlowNode::TYPE_ID; }
+		virtual const char* GetTypeUuid() const override					    { return BrainFlowNode::Uuid(); }
 		const char* GetReadableType() const override							{ return "BrainFlowDevice"; }
 		const char* GetRuleName() const override final							{ return BrainFlowDevice::GetRuleName(); }
-		GraphObject* Clone(Graph* parentGraph) override							{ BrainFlowNode* clone = new BrainFlowNode (parentGraph); return clone; }
+		GraphObject* Clone(Graph* parentGraph) override							{ BrainFlowNode* clone = new BrainFlowNode(parentGraph); return clone; }
 
-		void Init() override;
+		virtual void Init() override;
 
 		const BrainFlowInputParams& GetParams() const { return mParams; }
 		int GetBoardID() const { return mBoardID; }
 
-		void OnAttributesChanged() override;
+		virtual void OnAttributesChanged() override;
 
 		BrainFlowDevice* GetCurrentDevice() { return dynamic_cast<BrainFlowDevice*>(mCurrentDevice); }
 
@@ -65,8 +65,8 @@ class ENGINE_API BrainFlowNode : public DeviceInputNode
 
 		void ReInit(const Core::Time& elapsed, const Core::Time& delta) override;
 
-	private:
-		void SynchronizeParams();
+	protected:
+		virtual void SynchronizeParams();
 		void CreateNewDevice();
 
 };
